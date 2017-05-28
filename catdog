@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# catdog
+help='
+catdog
+Concatenate file(s) to standard output after first fetching from a directory.
+
+Use a regex to identify files.
+Finds text files by default.
+
+Usage:
+
+    catdog directory [regex]
+
+    directory - folder than will be searched recursively.
+ 
+    regex - default: txt$
+Examples:
+
+    $ catdog .                     # Find and concatenate text files
+    $ catdog . ''\.(md|markdown)$'' # Find and concatenate markdown files
+
+Call with -h or --help to display this message
+'
+
+function catdog
+{
+    local directory="${1:-.}"
+    local regex="${2}"
+    if [ "${regex}" == "" ]; then
+        regex="txt$"
+    fi
+    local output=""
+    local split="
+#------------------------------------------------------------------------------#
+"
+    # Output file names
+    files=$( find $directory | grep $regex )
+    echo $split
+    echo "$files"
+    echo $split
+    echo $'\n'
+    # Search and combine text files.
+    echo "$files" | while read line
+    do
+        file=$line
+        if [ "${file}" != '' ]; then
+             echo $split
+             echo file: $file
+             echo $split
+             echo "$( < "${file}" )" 
+             echo $'\n\n'
+        fi
+    done
+}
+
+
+function main
+{
+    help_check=$( echo "$*" | tr ' ' '\n' | grep --ignore-case '^\(-\|--\)\(h\|help\)$' )
+    if [ "$help_check" != '' ] || [ "$*" == '' ]
+    then
+        echo "$help"
+        exit 1
+    fi
+
+    catdog $*
+}
+
+if [[ "$( basename ${0} )" == "catdog" ]]
+then
+    main $*
+fi

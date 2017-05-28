@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# datetext
+help='
+datetext
+Output todays date and some text seperated by underscores instead of spaces.
+
+Uses either stdin or text passed as argument(s).
+Stdin can be used for multiple newline seperated values.
+
+Usage:
+    datetext [text...]
+'
+
+function datetext
+{
+    result=$( echo $(date -I)'_'$@ | tr ' ' '_' | tr -d '[:space:]')
+    echo "$result"
+}
+
+function main
+{
+    # Check for stdin
+    if tty >/dev/null  ; then
+      # No stdin
+      stdin=''
+    else
+      # Read stdin
+      stdin=$(</dev/stdin)
+    fi
+
+    help_check=$( echo "$*" | tr ' ' '\n' | grep --ignore-case '^\(-\|--\)\(h\|help\)$' )
+    if [ "$help_check" != '' ]
+    then
+        echo "$help"
+        exit 0
+    elif [ "$*" == '' ] && [ stdin == '' ]
+    then
+        echo "$help"
+        exit 1
+    elif [ "${stdin}" == '' ]
+    then
+         echo here
+         echo "$( datetext ${*} )"
+    elif [ "$*" == '' ] && [ stdin != '' ]
+    then
+         echo "$( datetext $stdin )"
+    fi
+}
+
+if [[ "$( basename ${0} )" == "datetext" ]]
+then  
+    main $*
+fi
+

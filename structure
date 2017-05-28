@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# structure
+# Create a folder structure to work/play in.
+help='
+structure
+Creates a file structure in the specified location.
+Usage:
+    structure [directory]
+    directory       - location to create new folder structure
+    [ -h | --help ] - View this message
+
+examples:
+
+    $ structure .               # Creates structure in current location
+    $ structure /path/to/folder # Creates structure in folder
+    $ structure "$(date -I)"    # Creates structure in new folder named YYYY-MM-DD
+'
+
+# Folders to create
+folders="
+.config
+archive                 | ARCHIVE - photos and files
+archive/family          | - photos, family, sentimental
+archive/personal        | - personal files
+archive/project         | - completed or old projects
+bin                     | SCRIPTS binary executables
+project/                | PROJECTS
+resource                | RESOURCES
+resource/notes          | - Notes created by me
+resource/own            | - resources created by me
+resource/permissive     | - open source, permissive, public-domain
+media                   | MEDIA
+media/music             | - Music
+media/film              | - Film
+media/game              | - Games
+media/resources         | - restricted to educational / fair use
+media/device            | - apps/info for individual computers/devices
+tmp                     | TEMPORARY
+"
+
+function create
+{
+    # Get the location.
+    directory=$1
+
+    # Remove comments from directory structure (only keep first field).
+    folders="$( echo "$folders" | cut -d ' ' -f1 )" 
+
+    # Create folders
+    echo
+    echo "Creating folder structure:"
+    echo
+    echo $directory
+    for folder in $folders
+    do
+        if [ "$folder" != "" ]
+        then
+            echo '    /'$folder
+            mkdir --parents "${directory}/${folder}"
+        fi
+    done
+}
+
+function main
+{ 
+    help_check=$( echo "$*" | tr ' ' '\n' | grep --ignore-case '^\(-\|--\)\(h\|help\)$' )
+    if [ "$help_check" != '' ] || [ "$*" == '' ]
+    then
+        echo "$help"
+        exit 1
+    fi
+
+    create $*
+}
+
+if [[ "$( basename ${0} )" == "structure" ]]
+then
+    main $*
+fi

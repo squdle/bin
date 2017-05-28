@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# template
+help='
+Template
+A bash template, displays a help message if -h flag used or no parameters entered.
+Usage:
+    template [ -h | --help ]
+'
+
+function main
+{
+    stdin=$( less <&0 )
+    help_check=$( echo "$*" | tr ' ' '\n' | grep --ignore-case '^\(-\|--\)\(h\|help\)$' )
+    if [ "$help_check" != '' ]
+    then
+        echo "$help"
+        exit 0
+    elif [ "$*" == '' ]
+    then
+        echo "$help"
+        exit 1
+    fi
+
+    result=""
+    echo "$result"
+}
+
+if [[ "$( basename ${0} )" == "template" ]]
+then
+    main $*
+fi
+
